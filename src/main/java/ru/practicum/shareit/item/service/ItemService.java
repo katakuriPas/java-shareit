@@ -20,6 +20,8 @@ import java.util.Objects;
 @Slf4j
 @RequiredArgsConstructor
 public class ItemService {
+    private static final String ITEM_NOT_FOUND = "Вещь с id =%d не найдена";
+    private static final String USER_NOT_FOUND = "Пользователь с id=%d не найден";
 
     private final InMemoryItemStorage itemStorage;
     private final InMemoryUserStorage userStorage;
@@ -27,51 +29,56 @@ public class ItemService {
 
     public ItemDto createItem(Long ownerId, ItemDto itemDto) {
         if (!userStorage.existsById(ownerId)) {
-            throw new NotFoundException("User с id = " + ownerId + " не найден");
+            throw new NotFoundException("Пользователь с id = " + ownerId + " не найден");
         }
 
         validationItem(itemDto);
 
         Item item = itemMapper.toItemEntity(itemDto);
+        log.info("Создана вещь id={} владельцем id={}", item.getId(), ownerId);
         return itemMapper.toItemDto(itemStorage.createItem(ownerId, item));
     }
 
     public ItemDto updateItem(Long ownerId, Long itemId, ItemDto newItemDto) {
         Item existingItem = itemStorage.getItemById(itemId)
-                .orElseThrow(() -> new NotFoundException("Вещь с itemId = " + itemId + " не найдена"));
+                .orElseThrow(() -> new NotFoundException(ITEM_NOT_FOUND.formatted(itemId)));
         User owner = userStorage.getUserById(existingItem.getOwnerId())
-                .orElseThrow(() -> new NotFoundException("Владелец вещи " + itemId + " отсутствует"));
+                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(ownerId)));
 
         if (!Objects.equals(ownerId, owner.getId())) {
-            User falseOwner = userStorage.getUserById(ownerId).
-                    orElseThrow(() -> new NotFoundException("Пользователь с  ownerId = " + ownerId + " отсутствует"));
-
-            throw new NotFoundException("Пользователь " + falseOwner.getName() + " не является владельцем данной вещи");
+            throw new NotFoundException("Пользователь с id = " + ownerId + " не является владельцем данной вещи");
         }
 
         Item newItem = itemMapper.toItemEntity(newItemDto);
 
+        log.info("Вещь id={} обновлена", newItem.getId());
         return itemMapper.toItemDto(itemStorage.updateItem(itemId, newItem));
     }
 
     public ItemDto getItemById(Long itemId) {
         Item existingItem = itemStorage.getItemById(itemId)
-                .orElseThrow(() -> new NotFoundException("Вещь с itemId = " + itemId + " не найдена"));
+                .orElseThrow(() -> new NotFoundException(ITEM_NOT_FOUND.formatted(itemId)));
+
+        log.info("Вещь id={} получена", existingItem.getId());
         return itemMapper.toItemDto(existingItem);
     }
 
     public Collection<ItemDto> getAllItemByOwner(Long ownerId) {
         if (userStorage.getUserById(ownerId).isEmpty()) {
-            throw new NotFoundException("Пользователь с ownerId = " + ownerId + " отсутствует");
+            throw new NotFoundException(USER_NOT_FOUND.formatted(ownerId));
         }
 
-        return itemStorage.getAllItemByOwner(ownerId).stream()
+        Collection<ItemDto> resItems = itemStorage.getAllItemByOwner(ownerId).stream()
                 .map(itemMapper::toItemDto)
                 .toList();
+
+        log.info("Получен список вещей {} пользователя id={} получена", resItems, ownerId);
+        return resItems;
     }
 
     public List<ItemDto> findItemByText(Long userId, String text) {
 
+        log.info("Получен список вещей по тексту {}", text);
         return itemStorage.findItemByText(userId,text).stream()
                 .map(itemMapper :: toItemDto)
                 .toList();
@@ -79,16 +86,16 @@ public class ItemService {
 
     public void validationItem(ItemDto itemDto) {
         if (itemDto.getName() == null || itemDto.getName().isBlank()) {
-            log.warn("Ошибка валидации: Имя не указано");
-            throw new ValidationException("Name должен быть указан");
+            log.warn("Ошибка валидации: Название вещи не указано");
+            throw new ValidationException("Название вещи должно быть указано");
         }
         if (itemDto.getDescription() == null || itemDto.getDescription().isBlank()) {
-            log.warn("Ошибка валидации: описание не указано ");
-            throw new ValidationException("Description должен быть указан");
+            log.warn("Ошибка валидации: Описание не указано ");
+            throw new ValidationException("Описание должно быть указан");
         }
-        if (itemDto.getAvailable() == null || itemDto.getDescription().isBlank()) {
+        if (itemDto.getAvailable() == null) {
             log.warn("Ошибка валидации: Статус аренды не указан ");
-            throw new ValidationException("Available должен быть указан");
+            throw new ValidationException("Статус аренды должен быть указан");
         }
     }
 }
