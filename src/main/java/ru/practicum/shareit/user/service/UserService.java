@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,24 +6,29 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DuplicatedDataException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.InMemoryUserStorage;
 
 import java.util.Collection;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
     private final InMemoryUserStorage userStorage;
+    private final UserMapper userMapper;
 
-    public Collection<User> findAllUser() {
+    public Collection<UserDto> findAllUser() {
         log.info("Запрос на получение всех пользователей. Количество: {}", userStorage.findAllUsers().size());
-        return userStorage.findAllUsers();
+        return userStorage.findAllUsers().stream()
+                .map(userMapper::toUserDto)
+                .toList();
     }
 
-    public User createUser(User user) {
+    public UserDto createUser(UserDto userDto) {
+        User user = userMapper.toUserEntity(userDto);
         validateUserJson(user);
 
         if (userStorage.existsByEmail(user.getEmail())) {
@@ -31,10 +36,12 @@ public class UserService {
             throw new DuplicatedDataException("Этот email уже используется");
         }
 
-        return userStorage.createUser(user);
+        return userMapper.toUserDto(userStorage.createUser(user));
     }
 
-    public User updateUser(Long userId, User newUser) {
+    public UserDto updateUser(Long userId, UserDto newUserDto) {
+        User newUser = userMapper.toUserEntity(newUserDto);
+
         User existingUser = userStorage.getUserById(userId)
                 .orElseThrow(() -> new NotFoundException("User с id = " + userId + " не найден"));
 
@@ -52,7 +59,7 @@ public class UserService {
             existingUser.setEmail(newUser.getEmail());
         }
 
-        return userStorage.updateUser(userId, existingUser);
+        return userMapper.toUserDto(userStorage.updateUser(userId, existingUser));
     }
 
     public void deleteUser(Long id) {
@@ -75,7 +82,9 @@ public class UserService {
         }
     }
 
-    public Optional<User> getUserById(Long id) {
-        return userStorage.getUserById(id);
+    public UserDto getUserById(Long id) {
+        User user = userStorage.getUserById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        return userMapper.toUserDto(user);
     }
 }

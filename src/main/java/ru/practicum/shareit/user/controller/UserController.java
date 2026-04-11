@@ -1,17 +1,18 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.dto.UserDto;
+
 
 import java.util.Collection;
-import java.util.Optional;
 
 /**
  * TODO Sprint add-controllers.
  */
 @RestController
-@RequestMapping(path = "/users")
+@RequestMapping("/users")
 public class UserController {
     private final UserService userService;
 
@@ -20,24 +21,24 @@ public class UserController {
     }
 
     @GetMapping
-    public Collection<User> findAllUser() {
+    public Collection<UserDto> findAllUser() {
         return userService.findAllUser();
     }
 
     @GetMapping("/{id}")
-    public Optional<User> getUserById(@PathVariable Long id) {
+    public UserDto getUserById(@PathVariable Long id) {
         return userService.getUserById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public UserDto createUser(@RequestBody UserDto userDto) {
+        return userService.createUser(userDto);
     }
 
     @PatchMapping("/{userId}")
-    public User update(@PathVariable Long userId, @RequestBody User newUser) {
-        return userService.updateUser(userId, newUser);
+    public UserDto update(@PathVariable Long userId, @RequestBody UserDto newUserDto) {
+        return userService.updateUser(userId, newUserDto);
     }
 
     @DeleteMapping("/{id}")
