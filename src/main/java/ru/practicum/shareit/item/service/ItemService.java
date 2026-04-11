@@ -79,8 +79,8 @@ public class ItemService {
     public List<ItemDto> findItemByText(Long userId, String text) {
 
         log.info("Получен список вещей по тексту {}", text);
-        return itemStorage.findItemByText(userId,text).stream()
-                .map(itemMapper :: toItemDto)
+        return itemStorage.findItemByText(userId, text).stream()
+                .map(itemMapper::toItemDto)
                 .toList();
     }
 

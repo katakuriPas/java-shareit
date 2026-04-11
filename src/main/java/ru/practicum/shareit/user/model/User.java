@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user.model;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Data;
 
 /**

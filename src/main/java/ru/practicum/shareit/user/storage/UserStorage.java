@@ -19,5 +19,5 @@ public interface UserStorage {
 
     boolean existsById(Long id);
 
-    Optional<User> getUserById (Long id);
+    Optional<User> getUserById(Long id);
 }
