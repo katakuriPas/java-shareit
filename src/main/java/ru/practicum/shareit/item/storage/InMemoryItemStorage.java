@@ -43,26 +43,24 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public Collection<Item> findItemByText(Long userId, String text) {
-        Collection<Item> searchItems = new ArrayList<>();
+    public List<Item> findItemByText(Long userId, String text) {
         String lowerText = text.toLowerCase();
 
-        if (text.isBlank() || text == null) {
-            return searchItems;
+        if (text == null || text.isBlank()) {
+            return new ArrayList<>();
         }
 
-        for (Item item : items.values()) {
-            if (item.getAvailable() != null && item.getAvailable()) {
-                String name = item.getName() != null ? item.getName().toLowerCase() : "";
-                String description = item.getDescription() != null ? item.getDescription().toLowerCase() : "";
-
-                if (name.contains(lowerText) || description.contains(lowerText)) {
-                    searchItems.add(item);
-                }
-            }
-        }
+        List<Item> searchItems = items.values().stream()
+                .filter(item -> item.getAvailable() != null && item.getAvailable())
+                .filter(item -> {
+                    String name = item.getName() != null ? item.getName().toLowerCase() : "";
+                    String description = item.getDescription() != null ? item.getDescription().toLowerCase() : "";
+                    return name.contains(lowerText) || description.contains(lowerText);
+                })
+                .toList();
 
         log.debug("Найдено {} вещей по запросу '{}'", searchItems.size(), text);
+        log.debug("Список искомых вещей {}", searchItems);
         return searchItems;
     }
 

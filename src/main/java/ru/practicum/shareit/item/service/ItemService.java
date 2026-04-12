@@ -9,7 +9,9 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.InMemoryItemStorage;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.storage.InMemoryUserStorage;
 
 import java.util.Collection;
@@ -25,6 +27,8 @@ public class ItemService {
 
     private final InMemoryItemStorage itemStorage;
     private final InMemoryUserStorage userStorage;
+    private final UserService userService;
+    private final UserMapper userMapper;
     private final ItemMapper itemMapper;
 
     public ItemDto createItem(Long ownerId, ItemDto itemDto) {
@@ -40,10 +44,8 @@ public class ItemService {
     }
 
     public ItemDto updateItem(Long ownerId, Long itemId, ItemDto newItemDto) {
-        Item existingItem = itemStorage.getItemById(itemId)
-                .orElseThrow(() -> new NotFoundException(ITEM_NOT_FOUND.formatted(itemId)));
-        User owner = userStorage.getUserById(existingItem.getOwnerId())
-                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(ownerId)));
+        Item existingItem = itemMapper.toItemEntity(getItemById(itemId));
+        User owner = userMapper.toUserEntity(userService.getUserById(existingItem.getOwnerId()));
 
         if (!Objects.equals(ownerId, owner.getId())) {
             throw new NotFoundException("Пользователь с id = " + ownerId + " не является владельцем данной вещи");

@@ -29,7 +29,7 @@ public class UserService {
 
     public UserDto createUser(UserDto userDto) {
         User user = userMapper.toUserEntity(userDto);
-        validateUserJson(user);
+        validateUser(user);
 
         if (userStorage.existsByEmail(user.getEmail())) {
             log.warn("Email '{}' уже используется", user.getEmail());
@@ -71,7 +71,7 @@ public class UserService {
         log.info("Удаление пользователя с id = {}", id);
     }
 
-    private void validateUserJson(User user) {
+    private void validateUser(User user) {
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             log.warn("Ошибка валидации: email не указан или не содержит @");
             throw new ValidationException("Email должен быть указан и содержать @");
