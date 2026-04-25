@@ -2,15 +2,19 @@ package ru.practicum.shareit.item.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import ru.practicum.shareit.item.comment.CommentDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
  */
 
 @Data
-public class ItemDto {
+@RequiredArgsConstructor
+public class ItemWithCommentsDto {
     private Long id;
     private String name;
     private String description;
@@ -22,4 +26,6 @@ public class ItemDto {
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "UTC")
     private LocalDateTime nextBooking;
+
+    private List<CommentDto> comments;
 }
