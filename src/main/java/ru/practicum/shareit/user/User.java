@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 import ru.practicum.shareit.item.comment.Comment;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * TODO Sprint add-controllers.
@@ -29,7 +31,7 @@ public class User {
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     @ToString.Exclude
-    private List<Item> items;
+    private Set<Item> items = new HashSet<>();
 
     @OneToMany(mappedBy = "author")
     @ToString.Exclude

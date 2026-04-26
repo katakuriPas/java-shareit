@@ -10,7 +10,6 @@ import ru.practicum.shareit.item.dto.ItemWithCommentsDto;
 
 import java.util.List;
 
-@Component
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
 

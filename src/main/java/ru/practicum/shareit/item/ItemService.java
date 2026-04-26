@@ -162,13 +162,6 @@ public class ItemService {
 
         LocalDateTime nowWithBuffer = LocalDateTime.now();
 
-        LocalDateTime testTime = bookingRepository.getLatestBookingEnd(itemId);
-        log.warn("TEST time MAX(end) = {}", testTime);
-
-        List<Booking> approvedBookings = bookingRepository.findAllByBookingStatus(BookingStatus.APPROVED);
-        log.warn("TEST approvedBookings = {}, status = {}", approvedBookings, BookingStatus.APPROVED);
-
-
         List<Booking> bookings = bookingRepository.findAllByItemIdAndBookerIdAndPast(userId, itemId, nowWithBuffer);
 
 
