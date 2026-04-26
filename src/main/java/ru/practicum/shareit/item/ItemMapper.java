@@ -2,7 +2,6 @@ package ru.practicum.shareit.item;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
