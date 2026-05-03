@@ -23,7 +23,7 @@ public class ItemRequest {
     @Column(nullable = false, length = 512)
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "requester_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

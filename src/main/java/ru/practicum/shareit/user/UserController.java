@@ -30,7 +30,7 @@ public class UserController {
     @GetMapping("/{id}")
     public UserDto getUserById(@PathVariable Long id) {
         log.info("GetMapping(\"/{id}\"): getUserById = {}", id);
-        return userService.getUserById(id);
+        return userService.getUserDtoById(id);
     }
 
     @PostMapping

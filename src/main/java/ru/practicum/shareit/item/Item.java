@@ -36,7 +36,7 @@ public class Item {
     private User owner;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "request_id")
+    @JoinColumn(name = "request_id", nullable = true)
     private ItemRequest itemRequest;
 
     @Column(name = "lastBooking")

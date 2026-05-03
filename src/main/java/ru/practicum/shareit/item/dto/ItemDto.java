@@ -15,7 +15,7 @@ public class ItemDto {
     private String name;
     private String description;
     private Boolean available;
-    private Long itemRequestId;
+    private Long requestId;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "UTC")
     private LocalDateTime lastBooking;

@@ -14,6 +14,8 @@ import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import ru.practicum.shareit.item.dto.ItemWithCommentsDto;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.RequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -33,6 +35,7 @@ public class ItemService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final RequestRepository requestRepository;
 
     private final ItemMapper itemMapper;
 
@@ -46,7 +49,15 @@ public class ItemService {
         Item item = itemMapper.toItemEntity(itemDto);
         item.setOwner(owner);
 
-        log.info("Создана вещь id={} владельцем id={}", item.getId(), ownerId);
+        if (itemDto.getRequestId() != null) {
+            ItemRequest request = requestRepository.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("Запрос с id " + itemDto.getRequestId() + " не найден"));
+            item.setItemRequest(request);
+        } else {
+            item.setItemRequest(null);
+        }
+
+        log.info("Создана вещь {} id={} владельцем id={}", item, item.getId(), ownerId);
         return itemMapper.toItemDto(itemRepository.save(item));
     }
 

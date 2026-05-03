@@ -80,9 +80,15 @@ public class UserService {
         }
     }
 
-    public UserDto getUserById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+    public UserDto getUserDtoById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User с id = " + userId + " не найден"));
         return userMapper.toUserDto(user);
+    }
+
+    public User getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User с id = " + userId + " не найден"));
+        return user;
     }
 }
