@@ -5,16 +5,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.ShareItServer;
 import ru.practicum.shareit.booking.BookingController;
 import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -23,8 +22,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = BookingController.class)
-@ContextConfiguration(classes = ShareItServer.class)
-@Import(ShareItServer.class)
 class BookingControllerTest {
 
     @Autowired
@@ -36,23 +33,33 @@ class BookingControllerTest {
     @MockBean
     private BookingService bookingService;
 
+    private final BookingResponseDto responseDto = BookingResponseDto.builder()
+            .id(1L)
+            .start(LocalDateTime.now().plusDays(1))
+            .end(LocalDateTime.now().plusDays(2))
+            .status(String.valueOf(BookingStatus.WAITING))
+            .build();
+
     @Test
-    void createBooking() throws Exception {
-        BookingResponseDto response = BookingResponseDto.builder().id(1L).build();
-        when(bookingService.createBooking(anyLong(), any())).thenReturn(response);
+    void createBooking_ShouldReturnStatusCreated() throws Exception {
+        BookingRequestDto requestDto = new BookingRequestDto();
+        requestDto.setItemId(1L);
+        requestDto.setStart(LocalDateTime.now().plusDays(1));
+        requestDto.setEnd(LocalDateTime.now().plusDays(2));
+
+        when(bookingService.createBooking(anyLong(), any())).thenReturn(responseDto);
 
         mvc.perform(post("/bookings")
                         .header("X-Sharer-User-Id", 1L)
-                        .content(mapper.writeValueAsString(new BookingRequestDto()))
+                        .content(mapper.writeValueAsString(requestDto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1));
+                .andExpect(jsonPath("$.id").value(1L));
     }
 
     @Test
-    void approveBooking() throws Exception {
-        BookingResponseDto response = BookingResponseDto.builder().id(1L).build();
-        when(bookingService.approveBooking(anyLong(), anyLong(), anyBoolean())).thenReturn(response);
+    void approveBooking_ShouldReturnOk() throws Exception {
+        when(bookingService.approveBooking(anyLong(), anyLong(), anyBoolean())).thenReturn(responseDto);
 
         mvc.perform(patch("/bookings/1")
                         .header("X-Sharer-User-Id", 1L)
@@ -61,30 +68,34 @@ class BookingControllerTest {
     }
 
     @Test
-    void getBooking() throws Exception {
-        BookingResponseDto response = BookingResponseDto.builder().id(1L).build();
-        when(bookingService.getBooking(anyLong(), anyLong())).thenReturn(response);
+    void getBooking_ShouldReturnDto() throws Exception {
+        when(bookingService.getBooking(anyLong(), anyLong())).thenReturn(responseDto);
 
         mvc.perform(get("/bookings/1")
                         .header("X-Sharer-User-Id", 1L))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L));
     }
 
     @Test
-    void getAllByBooker() throws Exception {
-        when(bookingService.getAllBookingByUser(anyLong(), anyString())).thenReturn(List.of());
+    void getAllByBooker_ShouldReturnList() throws Exception {
+        when(bookingService.getAllBookingByUser(anyLong(), anyString())).thenReturn(List.of(responseDto));
 
         mvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", 1L))
-                .andExpect(status().isOk());
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("state", "ALL"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1L));
     }
 
     @Test
-    void getAllByOwner() throws Exception {
-        when(bookingService.getAllBookingByOwnerId(anyLong(), anyString())).thenReturn(List.of());
+    void getAllByOwner_ShouldReturnList() throws Exception {
+        when(bookingService.getAllBookingByOwnerId(anyLong(), anyString())).thenReturn(List.of(responseDto));
 
         mvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", 1L))
-                .andExpect(status().isOk());
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("state", "ALL"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1L));
     }
 }

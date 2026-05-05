@@ -1,9 +1,7 @@
 package ru.practicum.shareit.user;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.comment.Comment;
 
@@ -20,6 +18,9 @@ import java.util.Set;
 @Table(name = "users")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,10 +32,12 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Builder.Default
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<Item> items = new HashSet<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "author")
     @ToString.Exclude
     private List<Comment> comments = new ArrayList<>();
