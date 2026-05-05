@@ -142,8 +142,6 @@ class UserServiceIntegrationTest {
         assertThat(result.getName(), equalTo("Find Me"));
     }
 
-    // Тесты на исключения (покрывают orElseThrow и if)
-
     @Test
     void updateUser_withSameEmail_shouldNotThrowError() {
         User user = new User();
