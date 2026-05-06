@@ -1,6 +1,5 @@
 package ru.practicum.shareit.request;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import ru.practicum.shareit.item.dto.ItemForRequestDto;
 
@@ -18,9 +17,11 @@ import java.util.List;
 @AllArgsConstructor
 public class ItemRequestDto {
     private Long id;
-    @NotBlank
+
     private String description;
+
     private Instant created;
+
     private List<ItemForRequestDto> items;
 }
 

@@ -76,14 +76,14 @@ public class RequestService {
         return addAnswersToRequest(itemRequestMapper.toItemRequestDto(itemRequest));
     }
 
-    public List<ItemRequestDto> addAnswersToAllRequest(List<ItemRequest> itemRequests) {
+    private List<ItemRequestDto> addAnswersToAllRequest(List<ItemRequest> itemRequests) {
         return itemRequests.stream()
                 .map(itemRequestMapper::toItemRequestDto)
                 .map(this::addAnswersToRequest)
                 .toList();
     }
 
-    public ItemRequestDto addAnswersToRequest(ItemRequestDto itemRequestDto) {
+    private ItemRequestDto addAnswersToRequest(ItemRequestDto itemRequestDto) {
         List<ItemForRequestDto> itemForRequestDtos = itemRepository.findAllByItemRequestId(itemRequestDto.getId()).stream()
                 .map(itemMapper::toItemForRequestDto)
                 .toList();
