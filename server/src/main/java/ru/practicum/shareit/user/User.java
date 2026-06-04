@@ -1,0 +1,44 @@
+package ru.practicum.shareit.user;
+
+import jakarta.persistence.*;
+import lombok.*;
+import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.item.comment.Comment;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * TODO Sprint add-controllers.
+ */
+
+@Entity
+@Table(name = "users")
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private Set<Item> items = new HashSet<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "author")
+    @ToString.Exclude
+    private List<Comment> comments = new ArrayList<>();
+}
